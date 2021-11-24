@@ -1,0 +1,40 @@
+import smbus #import libraries
+import time
+
+light_sensor = 0x23 # I2C address of Bh1750(default)
+low_power = 0x00 # when it is off
+high_power  = 0x01 # when it is on
+RESET      = 0x07 # Reset data value
+
+ONE_TIME_HIGH_RES_MODE = 0x20 #define the mode in which the device will operate 
+#there are block of constants listed in datasheet
+ 
+bus = smbus.SMBus(1)  # setups the I2C interface
+ 
+def convertToNumber(data):# converts data into decimal number
+  return ((data[1] + (256 * data[0])) / 1.2)
+ 
+def readLight(addr= light_sensor):
+  data = bus.read_i2c_block_data(addr,ONE_TIME_HIGH_RES_MODE)#it is used to read 2 bytes of data from the device 
+  return convertToNumber(data)
+ 
+def main():
+
+  while True:
+    lux = readLight()# read the light intensity 
+    print (lux)# prints the light intensity 
+    
+    if(lux >= 1200):
+        print(" ItsToo Bright!!!")
+    elif(lux > 700 and lux < 1199):
+        print("Its Bright!!")
+    elif(lux > 300 and lux < 699):
+        print("Its Medium!")
+    elif(lux < 50 and lux > 299):
+        print("Its Dark!!")
+    elif(lux < 49):
+        print("Its Too Dark!!!")
+        
+    time.sleep(0.5)
+    
+main()
